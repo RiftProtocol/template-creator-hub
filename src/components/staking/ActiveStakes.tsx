@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { Clock, TrendingUp, Unlock, Loader2, Gift, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { useStaking } from "@/hooks/useStaking";
 import { formatSOL, StakeWithRewards } from "@/lib/staking";
-import { cn } from "@/lib/utils";
 
 export function ActiveStakes() {
   const { stakes, totalStaked, totalRewards, isLoading, unstake, claimRewards, isUnstaking, isClaiming } = useStaking();
@@ -11,18 +9,20 @@ export function ActiveStakes() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-wallet" />
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-[#FFCC00]" />
       </div>
     );
   }
 
   if (stakes.length === 0) {
     return (
-      <div className="text-center py-12">
-        <TrendingUp className="h-12 w-12 text-white/20 mx-auto mb-4" />
-        <p className="text-white/60 mb-2">No active stakes</p>
-        <p className="text-white/40 text-sm">Stake SOL to start earning 0.7% daily rewards</p>
+      <div className="text-center py-16">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mx-auto mb-6 text-white/20">
+          <path d="M22 12H18L15 21L9 3L6 12H2"/>
+        </svg>
+        <p className="text-white/60 text-[18px] mb-2 font-inter">No active stakes</p>
+        <p className="text-white/40 text-[14px] font-inter">Stake SOL to start earning 0.7% daily rewards</p>
       </div>
     );
   }
@@ -31,13 +31,13 @@ export function ActiveStakes() {
     <div className="space-y-6">
       {/* Summary */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <div className="text-white/60 text-sm mb-1">Total Staked</div>
-          <div className="text-2xl font-bold text-white">{formatSOL(totalStaked)} SOL</div>
+        <div className="rounded-2xl bg-white/5 border border-white/10 p-5">
+          <div className="text-white/60 text-[12px] font-inter mb-1">Total Staked</div>
+          <div className="text-[24px] font-inter font-bold text-white">{formatSOL(totalStaked)} SOL</div>
         </div>
-        <div className="bg-gradient-to-r from-green-500/10 to-green-500/5 border border-green-500/20 rounded-xl p-4">
-          <div className="text-green-400/80 text-sm mb-1">Total Earned</div>
-          <div className="text-2xl font-bold text-green-400">+{formatSOL(totalRewards)} SOL</div>
+        <div className="rounded-2xl bg-gradient-to-r from-green-500/10 to-green-500/5 border border-green-500/20 p-5">
+          <div className="text-green-400/80 text-[12px] font-inter mb-1">Total Earned</div>
+          <div className="text-[24px] font-inter font-bold text-green-400">+{formatSOL(totalRewards)} SOL</div>
         </div>
       </div>
 
@@ -81,32 +81,35 @@ function StakeCard({ stake, isExpanded, onToggle, onUnstake, onClaimRewards, isU
   };
 
   return (
-    <div
-      className={cn(
-        "bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all",
-        isExpanded && "border-wallet/30"
-      )}
-    >
+    <div className={`rounded-2xl bg-white/5 border transition-all ${isExpanded ? "border-[#FFCC00]/30" : "border-white/10"}`}>
       {/* Header */}
       <button
         onClick={onToggle}
-        className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+        className="w-full p-5 flex items-center justify-between hover:bg-white/5 transition-colors rounded-2xl"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-wallet/20 flex items-center justify-center">
-            <TrendingUp className="h-5 w-5 text-wallet" />
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-[#FFCC00]/20 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFCC00" strokeWidth="2">
+              <path d="M22 12H18L15 21L9 3L6 12H2"/>
+            </svg>
           </div>
           <div className="text-left">
-            <div className="text-white font-semibold">{formatSOL(stake.amount_sol)} SOL</div>
-            <div className="text-white/60 text-sm">
+            <div className="text-white font-inter font-semibold text-[16px]">{formatSOL(stake.amount_sol)} SOL</div>
+            <div className="text-[12px] font-inter">
               {stake.isLocked ? (
                 <span className="flex items-center gap-1 text-orange-400">
-                  <Clock className="h-3 w-3" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6V12L16 14"/>
+                  </svg>
                   {stake.lockupRemaining}h remaining
                 </span>
               ) : (
                 <span className="flex items-center gap-1 text-green-400">
-                  <Unlock className="h-3 w-3" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                  </svg>
                   Unlocked
                 </span>
               )}
@@ -114,77 +117,89 @@ function StakeCard({ stake, isExpanded, onToggle, onUnstake, onClaimRewards, isU
           </div>
         </div>
         <div className="text-right">
-          <div className="text-green-400 font-semibold">+{formatSOL(stake.earnedRewards)} SOL</div>
-          <div className="text-white/40 text-xs">{stake.daysStaked.toFixed(1)} days</div>
+          <div className="text-green-400 font-inter font-semibold">+{formatSOL(stake.earnedRewards)} SOL</div>
+          <div className="text-white/40 text-[12px] font-inter">{stake.daysStaked.toFixed(1)} days</div>
         </div>
       </button>
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="px-4 pb-4 space-y-4 border-t border-white/10 pt-4">
+        <div className="px-5 pb-5 space-y-5 border-t border-white/10 pt-5">
           {/* Details */}
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-2 gap-4 text-[14px] font-inter">
             <div>
-              <div className="text-white/40">Staked</div>
+              <div className="text-white/40 text-[12px]">Staked</div>
               <div className="text-white">{formatDate(stake.staked_at)}</div>
             </div>
             <div>
-              <div className="text-white/40">Unlocks</div>
+              <div className="text-white/40 text-[12px]">Unlocks</div>
               <div className="text-white">{formatDate(stake.lockup_ends_at)}</div>
             </div>
             <div>
-              <div className="text-white/40">Total Value</div>
-              <div className="text-wallet font-semibold">{formatSOL(stake.totalValue)} SOL</div>
+              <div className="text-white/40 text-[12px]">Total Value</div>
+              <div className="text-[#FFCC00] font-semibold">{formatSOL(stake.totalValue)} SOL</div>
             </div>
             <div>
-              <div className="text-white/40">Transaction</div>
+              <div className="text-white/40 text-[12px]">Transaction</div>
               <a
                 href={`https://solscan.io/tx/${stake.tx_signature}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-wallet hover:underline flex items-center gap-1"
+                className="text-[#FFCC00] hover:underline flex items-center gap-1"
               >
-                View <ExternalLink className="h-3 w-3" />
+                View
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 13V19C18 20.1046 17.1046 21 16 21H5C3.89543 21 3 20.1046 3 19V8C3 6.89543 3.89543 6 5 6H11"/>
+                  <path d="M15 3H21V9"/>
+                  <path d="M10 14L21 3"/>
+                </svg>
               </a>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2">
-            <Button
+          <div className="flex gap-3">
+            <button
               onClick={onClaimRewards}
               disabled={isClaiming || stake.earnedRewards < 0.001}
-              variant="outline"
-              className="flex-1 border-green-500/30 text-green-400 hover:bg-green-500/10"
+              className="flex-1 py-3 rounded-xl border border-green-500/30 text-green-400 font-inter font-semibold text-[14px] hover:bg-green-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
               {isClaiming ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  <Gift className="h-4 w-4 mr-2" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 12V22H4V12"/>
+                    <path d="M22 7H2V12H22V7Z"/>
+                    <path d="M12 22V7"/>
+                    <path d="M12 7H7.5C6.83696 7 6.20107 6.73661 5.73223 6.26777C5.26339 5.79893 5 5.16304 5 4.5C5 3.83696 5.26339 3.20107 5.73223 2.73223C6.20107 2.26339 6.83696 2 7.5 2C11 2 12 7 12 7Z"/>
+                    <path d="M12 7H16.5C17.163 7 17.7989 6.73661 18.2678 6.26777C18.7366 5.79893 19 5.16304 19 4.5C19 3.83696 18.7366 3.20107 18.2678 2.73223C17.7989 2.26339 17.163 2 16.5 2C13 2 12 7 12 7Z"/>
+                  </svg>
                   Claim Rewards
                 </>
               )}
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={onUnstake}
               disabled={isUnstaking || stake.isLocked}
-              variant="outline"
-              className="flex-1 border-wallet/30 text-wallet hover:bg-wallet/10"
+              className="flex-1 py-3 rounded-xl border border-[#FFCC00]/30 text-[#FFCC00] font-inter font-semibold text-[14px] hover:bg-[#FFCC00]/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
               {isUnstaking ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  <Unlock className="h-4 w-4 mr-2" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                  </svg>
                   Unstake All
                 </>
               )}
-            </Button>
+            </button>
           </div>
 
           {stake.isLocked && (
-            <p className="text-orange-400/80 text-xs text-center">
+            <p className="text-orange-400/80 text-[12px] text-center font-inter">
               Unstaking available after lockup period ends
             </p>
           )}
