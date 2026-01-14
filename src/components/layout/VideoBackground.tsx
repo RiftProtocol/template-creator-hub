@@ -1,18 +1,23 @@
+import bannerVideo from "@/assets/banner.mp4";
+
 interface VideoBackgroundProps {
   children: React.ReactNode;
   overlayOpacity?: number;
 }
 
-export const VideoBackground = ({ children, overlayOpacity = 0.8 }: VideoBackgroundProps) => {
+export const VideoBackground = ({ children, overlayOpacity = 0.7 }: VideoBackgroundProps) => {
   return (
     <section className="relative w-full min-h-screen overflow-hidden">
-      {/* Background - gradient fallback since video is too large */}
-      <div 
-        className="absolute top-0 left-0 w-full h-full"
-        style={{
-          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)',
-        }}
-      />
+      {/* Video Background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover"
+      >
+        <source src={bannerVideo} type="video/mp4" />
+      </video>
 
       {/* Overlay */}
       <div
