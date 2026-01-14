@@ -44,7 +44,7 @@ export const Header = () => {
               to="/stats"
               className={({ isActive }) =>
                 `transition-colors cursor-pointer ${
-                  isActive ? "text-nav-active" : "text-foreground hover:text-nav-active"
+                  isActive ? "text-nav-active" : "text-white hover:text-nav-active"
                 }`
               }
             >
@@ -55,7 +55,7 @@ export const Header = () => {
               to="/wallet-connected"
               className={({ isActive }) =>
                 `transition-colors cursor-pointer ${
-                  isActive ? "text-nav-active" : "text-foreground hover:text-nav-active"
+                  isActive ? "text-nav-active" : "text-white hover:text-nav-active"
                 }`
               }
             >
@@ -105,7 +105,7 @@ export const Header = () => {
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `text-[24px] font-inter transition-colors ${
-                  isActive ? "text-nav-active" : "text-foreground hover:text-nav-active"
+                  isActive ? "text-nav-active" : "text-white hover:text-nav-active"
                 }`
               }
             >
@@ -117,7 +117,7 @@ export const Header = () => {
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `text-[24px] font-inter transition-colors ${
-                  isActive ? "text-nav-active" : "text-foreground hover:text-nav-active"
+                  isActive ? "text-nav-active" : "text-white hover:text-nav-active"
                 }`
               }
             >
