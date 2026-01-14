@@ -164,12 +164,6 @@ export default function Staking() {
               {activeTab === "stake" ? <StakeForm /> : <ActiveStakes />}
             </div>
 
-            {/* Treasury Info */}
-            <div className="mt-8 text-center">
-              <p className="text-white/40 text-[12px] font-inter">
-                Treasury Wallet: {STAKING_CONFIG.TREASURY_WALLET.slice(0, 12)}...{STAKING_CONFIG.TREASURY_WALLET.slice(-12)}
-              </p>
-            </div>
           </div>
         </div>
       </div>
