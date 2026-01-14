@@ -14,7 +14,121 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      reward_claims: {
+        Row: {
+          amount_sol: number
+          claimed_at: string
+          id: string
+          stake_id: string
+          status: string
+          tx_signature: string | null
+        }
+        Insert: {
+          amount_sol: number
+          claimed_at?: string
+          id?: string
+          stake_id: string
+          status?: string
+          tx_signature?: string | null
+        }
+        Update: {
+          amount_sol?: number
+          claimed_at?: string
+          id?: string
+          stake_id?: string
+          status?: string
+          tx_signature?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_claims_stake_id_fkey"
+            columns: ["stake_id"]
+            isOneToOne: false
+            referencedRelation: "stakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stakes: {
+        Row: {
+          amount_sol: number
+          created_at: string
+          id: string
+          lockup_ends_at: string
+          staked_at: string
+          status: string
+          tx_signature: string
+          updated_at: string
+          user_wallet: string
+        }
+        Insert: {
+          amount_sol: number
+          created_at?: string
+          id?: string
+          lockup_ends_at?: string
+          staked_at?: string
+          status?: string
+          tx_signature: string
+          updated_at?: string
+          user_wallet: string
+        }
+        Update: {
+          amount_sol?: number
+          created_at?: string
+          id?: string
+          lockup_ends_at?: string
+          staked_at?: string
+          status?: string
+          tx_signature?: string
+          updated_at?: string
+          user_wallet?: string
+        }
+        Relationships: []
+      }
+      unstake_requests: {
+        Row: {
+          amount_sol: number
+          id: string
+          processed_at: string | null
+          recipient_wallet: string
+          requested_at: string
+          rewards_sol: number
+          stake_id: string
+          status: string
+          tx_signature: string | null
+        }
+        Insert: {
+          amount_sol: number
+          id?: string
+          processed_at?: string | null
+          recipient_wallet: string
+          requested_at?: string
+          rewards_sol?: number
+          stake_id: string
+          status?: string
+          tx_signature?: string | null
+        }
+        Update: {
+          amount_sol?: number
+          id?: string
+          processed_at?: string | null
+          recipient_wallet?: string
+          requested_at?: string
+          rewards_sol?: number
+          stake_id?: string
+          status?: string
+          tx_signature?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unstake_requests_stake_id_fkey"
+            columns: ["stake_id"]
+            isOneToOne: false
+            referencedRelation: "stakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
