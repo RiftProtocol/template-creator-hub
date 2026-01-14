@@ -41,6 +41,17 @@ export const Header = () => {
           {/* Desktop Nav */}
           <nav className="hidden md:flex gap-8">
             <NavLink
+              to="/staking"
+              className={({ isActive }) =>
+                `transition-colors cursor-pointer ${
+                  isActive ? "text-nav-active" : "text-white hover:text-nav-active"
+                }`
+              }
+            >
+              Staking
+            </NavLink>
+
+            <NavLink
               to="/stats"
               className={({ isActive }) =>
                 `transition-colors cursor-pointer ${
@@ -100,6 +111,18 @@ export const Header = () => {
       {open && (
         <div className="fixed top-[72px] left-0 right-0 bottom-0 z-[40] md:hidden bg-background/10 backdrop-blur-[40px]">
           <nav className="flex flex-col items-center justify-center w-full h-full gap-8">
+            <NavLink
+              to="/staking"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                `text-[24px] font-inter transition-colors ${
+                  isActive ? "text-nav-active" : "text-white hover:text-nav-active"
+                }`
+              }
+            >
+              Staking
+            </NavLink>
+
             <NavLink
               to="/stats"
               onClick={() => setOpen(false)}
