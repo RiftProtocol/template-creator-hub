@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { WalletContextProvider } from "@/components/wallet";
 import Index from "./pages/Index";
+import Mixer from "./pages/Mixer";
+import Stats from "./pages/Stats";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,6 +20,9 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/mixer" element={<Mixer />} />
+            <Route path="/wallet-connected" element={<Mixer />} />
+            <Route path="/stats" element={<Stats />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
