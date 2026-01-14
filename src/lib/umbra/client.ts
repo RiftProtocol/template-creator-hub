@@ -68,11 +68,11 @@ export class UmbraClient {
   }
 
   // Generate a new deposit note (secret + nullifier)
-  generateDepositNote(poolType: PoolType, amountIndex: number): DepositNote {
+  generateDepositNote(poolType: PoolType, amountIndex: number, customAmount?: number): DepositNote {
     const nullifier = bytesToHex(getRandomBytes(31));
     const secret = bytesToHex(getRandomBytes(31));
     const commitment = generateCommitment(nullifier, secret);
-    const amount = DEPOSIT_AMOUNTS[poolType][amountIndex];
+    const amount = customAmount !== undefined ? customAmount : DEPOSIT_AMOUNTS[poolType][amountIndex];
 
     return {
       commitment,
