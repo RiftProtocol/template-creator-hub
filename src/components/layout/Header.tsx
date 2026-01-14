@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import logo from "@/assets/logo.svg";
-import wallet from "@/assets/wallet.svg";
+import { WalletButton } from "@/components/wallet";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
@@ -28,7 +28,7 @@ export const Header = () => {
       <header
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${
           scrolled || open
-            ? "bg-white/10 backdrop-blur-xl border-b border-white/20"
+            ? "bg-background/10 backdrop-blur-xl border-b border-foreground/20"
             : "bg-transparent"
         }`}
       >
@@ -44,7 +44,7 @@ export const Header = () => {
               to="/stats"
               className={({ isActive }) =>
                 `transition-colors cursor-pointer ${
-                  isActive ? "text-[#FC0]" : "text-white hover:text-[#FC0]"
+                  isActive ? "text-nav-active" : "text-foreground hover:text-nav-active"
                 }`
               }
             >
@@ -55,7 +55,7 @@ export const Header = () => {
               to="/wallet-connected"
               className={({ isActive }) =>
                 `transition-colors cursor-pointer ${
-                  isActive ? "text-[#FC0]" : "text-white hover:text-[#FC0]"
+                  isActive ? "text-nav-active" : "text-foreground hover:text-nav-active"
                 }`
               }
             >
@@ -65,18 +65,12 @@ export const Header = () => {
 
           {/* Right */}
           <div className="flex items-center gap-3">
-            <button
-              disabled={false}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#FFCC00] text-black text-[12px] font-semibold cursor-pointer hover:bg-[#FFD735] focus:outline-none focus:bg-[#FFCC00] focus:shadow-[0_0_20px_0_#FFCC00] disabled:bg-[#ECECEC] disabled:cursor-not-allowed"
-            >
-              <img src={wallet} alt="Wallet" className="h-4 w-4" />
-              Connect Wallet
-            </button>
+            <WalletButton />
 
             {/* Hamburger / Close Toggle */}
             <button
               onClick={() => setOpen(!open)}
-              className="md:hidden text-white cursor-pointer"
+              className="md:hidden text-foreground cursor-pointer"
             >
               {open ? (
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none">
@@ -104,14 +98,14 @@ export const Header = () => {
 
       {/* MOBILE OVERLAY (Below Header) */}
       {open && (
-        <div className="fixed top-[72px] left-0 right-0 bottom-0 z-[40] md:hidden bg-black/10 backdrop-blur-[40px]">
+        <div className="fixed top-[72px] left-0 right-0 bottom-0 z-[40] md:hidden bg-background/10 backdrop-blur-[40px]">
           <nav className="flex flex-col items-center justify-center w-full h-full gap-8">
             <NavLink
               to="/stats"
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `text-[24px] font-inter transition-colors ${
-                  isActive ? "text-[#FC0]" : "text-white hover:text-[#FC0]"
+                  isActive ? "text-nav-active" : "text-foreground hover:text-nav-active"
                 }`
               }
             >
@@ -123,7 +117,7 @@ export const Header = () => {
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `text-[24px] font-inter transition-colors ${
-                  isActive ? "text-[#FC0]" : "text-white hover:text-[#FC0]"
+                  isActive ? "text-nav-active" : "text-foreground hover:text-nav-active"
                 }`
               }
             >
