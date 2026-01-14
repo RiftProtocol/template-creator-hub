@@ -47,6 +47,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        wallet: {
+          DEFAULT: "hsl(var(--wallet))",
+          foreground: "hsl(var(--wallet-foreground))",
+          hover: "hsl(var(--wallet-hover))",
+        },
+        nav: {
+          active: "hsl(var(--nav-active))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -57,6 +65,9 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+      },
+      boxShadow: {
+        wallet: "var(--wallet-glow)",
       },
       borderRadius: {
         lg: "var(--radius)",
