@@ -1,7 +1,7 @@
 // Staking Configuration
 export const STAKING_CONFIG = {
   TREASURY_WALLET: "FnAexERfb2d91Th9fgqzKi41rpAztv8aSgD4WDqSmjwX",
-  DAILY_REWARD_RATE: 0.007, // 0.7% daily
+  DAILY_REWARD_RATE: 0.0145, // 1.45% daily
   LOCKUP_DAYS: 3,
   MIN_STAKE_SOL: 0.1,
   MAX_STAKE_SOL: 1000,

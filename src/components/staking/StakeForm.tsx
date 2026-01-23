@@ -215,7 +215,7 @@ export function StakeForm() {
 
       {/* Info */}
       <p className="text-center text-white/40 text-[12px] font-inter">
-        Your SOL helps expand protocol reserves while earning you 0.7% daily
+        Your SOL helps expand protocol reserves while earning you 1.45% daily
       </p>
     </div>
   );
