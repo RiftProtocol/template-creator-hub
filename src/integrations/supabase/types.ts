@@ -52,8 +52,10 @@ export type Database = {
       stakes: {
         Row: {
           amount_sol: number
+          claimed_rewards_sol: number
           created_at: string
           id: string
+          last_claimed_at: string | null
           lockup_ends_at: string
           staked_at: string
           status: string
@@ -63,8 +65,10 @@ export type Database = {
         }
         Insert: {
           amount_sol: number
+          claimed_rewards_sol?: number
           created_at?: string
           id?: string
+          last_claimed_at?: string | null
           lockup_ends_at?: string
           staked_at?: string
           status?: string
@@ -74,8 +78,10 @@ export type Database = {
         }
         Update: {
           amount_sol?: number
+          claimed_rewards_sol?: number
           created_at?: string
           id?: string
+          last_claimed_at?: string | null
           lockup_ends_at?: string
           staked_at?: string
           status?: string

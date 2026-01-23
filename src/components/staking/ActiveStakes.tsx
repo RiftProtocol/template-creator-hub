@@ -49,8 +49,8 @@ export function ActiveStakes() {
             stake={stake}
             isExpanded={expandedStake === stake.id}
             onToggle={() => setExpandedStake(expandedStake === stake.id ? null : stake.id)}
-            onUnstake={() => unstake(stake.id, stake.amount_sol, stake.earnedRewards)}
-            onClaimRewards={() => claimRewards(stake.id, stake.earnedRewards)}
+            onUnstake={() => unstake(stake.id, stake.amount_sol, stake.claimableRewards)}
+            onClaimRewards={() => claimRewards(stake.id, stake.claimableRewards)}
             isUnstaking={isUnstaking}
             isClaiming={isClaiming}
           />
@@ -117,7 +117,7 @@ function StakeCard({ stake, isExpanded, onToggle, onUnstake, onClaimRewards, isU
           </div>
         </div>
         <div className="text-right">
-          <div className="text-green-400 font-inter font-semibold">+{formatSOL(stake.earnedRewards)} SOL</div>
+          <div className="text-green-400 font-inter font-semibold">+{formatSOL(stake.claimableRewards)} SOL</div>
           <div className="text-white/40 text-[12px] font-inter">{stake.daysStaked.toFixed(1)} days</div>
         </div>
       </button>
@@ -157,11 +157,10 @@ function StakeCard({ stake, isExpanded, onToggle, onUnstake, onClaimRewards, isU
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3">
             <button
               onClick={onClaimRewards}
-              disabled={isClaiming || stake.earnedRewards < 0.001}
+              disabled={isClaiming || stake.claimableRewards < 0.001}
               className="flex-1 py-3 rounded-xl border border-green-500/30 text-green-400 font-inter font-semibold text-[14px] hover:bg-green-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
               {isClaiming ? (

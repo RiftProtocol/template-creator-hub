@@ -83,6 +83,7 @@ serve(async (req) => {
 
     // Update database based on type
     if (type === "reward" && claimId) {
+      // Update claim status
       await supabase
         .from("reward_claims")
         .update({
@@ -90,6 +91,33 @@ serve(async (req) => {
           tx_signature: signature,
         })
         .eq("id", claimId);
+
+      // Get the stake_id from the claim and update claimed_rewards_sol
+      const { data: claim } = await supabase
+        .from("reward_claims")
+        .select("stake_id, amount_sol")
+        .eq("id", claimId)
+        .single();
+
+      if (claim?.stake_id) {
+        // Get current claimed amount
+        const { data: stake } = await supabase
+          .from("stakes")
+          .select("claimed_rewards_sol")
+          .eq("id", claim.stake_id)
+          .single();
+
+        const currentClaimed = stake?.claimed_rewards_sol || 0;
+        
+        // Update the stake with new claimed total
+        await supabase
+          .from("stakes")
+          .update({
+            claimed_rewards_sol: currentClaimed + claim.amount_sol,
+            last_claimed_at: new Date().toISOString(),
+          })
+          .eq("id", claim.stake_id);
+      }
     } else if (type === "unstake" && requestId) {
       await supabase
         .from("unstake_requests")
