@@ -1,7 +1,7 @@
 import bannerVideo from "@/assets/banner.mp4";
 
 interface VideoBackgroundProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   overlayOpacity?: number;
 }
 
