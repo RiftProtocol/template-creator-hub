@@ -38,7 +38,7 @@ export default function Staking() {
                 </Link>
 
                 <Link
-                  to="/mixer"
+                  to="/mix"
                   className="lg:w-auto w-[50%] flex items-center justify-center gap-2 px-4 py-3 rounded-[8px] bg-[#FFCC00] text-black font-inter text-[12px] font-semibold leading-[12px] hover:bg-[#FFD735] active:bg-[#FFCC00] active:shadow-[0_0_20px_0_#FFCC00] focus-visible:outline-none focus-visible:shadow-[0_0_20px_0_#FFCC00] transition-all duration-200"
                 >
                   Privacy Mixer

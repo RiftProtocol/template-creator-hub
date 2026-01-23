@@ -63,7 +63,7 @@ export const Header = () => {
             </NavLink>
 
             <NavLink
-              to="/wallet-connected"
+              to="/mix"
               className={({ isActive }) =>
                 `transition-colors cursor-pointer ${
                   isActive ? "text-nav-active" : "text-white hover:text-nav-active"
@@ -136,7 +136,7 @@ export const Header = () => {
             </NavLink>
 
             <NavLink
-              to="/wallet-connected"
+              to="/mix"
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `text-[24px] font-inter transition-colors ${
