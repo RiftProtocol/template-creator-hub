@@ -1,6 +1,8 @@
-export const Footer = () => {
+import { forwardRef } from "react";
+
+export const Footer = forwardRef<HTMLElement>((_, ref) => {
   return (
-    <footer className="w-full bg-black py-6">
+    <footer ref={ref} className="w-full bg-black py-6">
       <div className="lg:container mx-auto px-8 flex flex-row items-center justify-between gap-4">
 
         {/* Left */}
@@ -91,4 +93,6 @@ export const Footer = () => {
       </div>
     </footer>
   );
-};
+});
+
+Footer.displayName = "Footer";
