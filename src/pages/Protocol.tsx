@@ -189,18 +189,40 @@ export default function Protocol() {
             </h2>
             <div className="grid md:grid-cols-3 gap-4">
               {[
-                { name: "Privacy Mixer", desc: "ZK-proof deposits & withdrawals", file: "rift-mixer" },
-                { name: "Staking", desc: "Tiered staking & relayer network", file: "rift-staking" },
-                { name: "Governance", desc: "DAO proposals & voting", file: "rift-governance" },
+                { 
+                  name: "Privacy Mixer", 
+                  desc: "ZK-proof deposits & withdrawals with Merkle tree commitments", 
+                  path: "contracts/rift-mixer/programs/rift-mixer/src/lib.rs",
+                  github: "https://github.com/riftprotocol/rift/blob/main/contracts/rift-mixer/programs/rift-mixer/src/lib.rs"
+                },
+                { 
+                  name: "Staking", 
+                  desc: "Tiered staking rewards & relayer node registration", 
+                  path: "contracts/rift-mixer/programs/rift-staking/src/lib.rs",
+                  github: "https://github.com/riftprotocol/rift/blob/main/contracts/rift-mixer/programs/rift-staking/src/lib.rs"
+                },
+                { 
+                  name: "Governance", 
+                  desc: "DAO proposals, voting & timelock execution", 
+                  path: "contracts/rift-mixer/programs/rift-governance/src/lib.rs",
+                  github: "https://github.com/riftprotocol/rift/blob/main/contracts/rift-mixer/programs/rift-governance/src/lib.rs"
+                },
               ].map((contract) => (
-                <div key={contract.file} className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                  <h3 className="font-semibold mb-2 text-white">{contract.name}</h3>
+                <a 
+                  key={contract.path} 
+                  href={contract.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 hover:border-wallet/30 transition-all group"
+                >
+                  <h3 className="font-semibold mb-2 text-white group-hover:text-wallet transition-colors">{contract.name}</h3>
                   <p className="text-sm text-white/60 mb-4">{contract.desc}</p>
                   <div className="flex items-center gap-2 text-xs text-wallet">
                     <Github className="w-4 h-4" />
-                    <span>contracts/{contract.file}</span>
+                    <span className="truncate">{contract.path}</span>
+                    <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           </section>
