@@ -1,16 +1,18 @@
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useState, forwardRef } from "react";
+import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { useStaking } from "@/hooks/useStaking";
 import { useWalletConnection } from "@/hooks/useWalletConnection";
+import { useWalletVerification } from "@/hooks/useWalletVerification";
 import { STAKING_CONFIG, formatSOL } from "@/lib/staking";
 import { WalletButton } from "@/components/wallet";
 
 const QUICK_AMOUNTS = [0.5, 1, 5, 10];
 
-export function StakeForm() {
+export const StakeForm = forwardRef<HTMLDivElement>((_, ref) => {
   const [amount, setAmount] = useState("");
   const { stake, isStaking } = useStaking();
-  const { connected, balance } = useWalletConnection();
+  const { connected, balance, isLoadingBalance, balanceError, refetchBalance } = useWalletConnection();
+  const { isVerified, isVerifying, verifyWallet } = useWalletVerification();
 
   const numAmount = parseFloat(amount) || 0;
   const isValidAmount = numAmount >= STAKING_CONFIG.MIN_STAKE_SOL && 
@@ -18,7 +20,7 @@ export function StakeForm() {
                         (balance === null || numAmount <= balance);
 
   const handleStake = async () => {
-    if (!isValidAmount) return;
+    if (!isValidAmount || !isVerified) return;
     const result = await stake(numAmount);
     if (result) {
       setAmount("");
@@ -36,6 +38,7 @@ export function StakeForm() {
     }
   };
 
+  // Not connected state
   if (!connected) {
     return (
       <div className="text-center py-12">
@@ -51,14 +54,69 @@ export function StakeForm() {
     );
   }
 
+  // Verifying state
+  if (isVerifying) {
+    return (
+      <div className="text-center py-12">
+        <Loader2 className="mx-auto mb-6 h-12 w-12 text-[#FFCC00] animate-spin" />
+        <p className="text-white text-[18px] mb-2 font-inter font-semibold">Verifying Wallet</p>
+        <p className="text-white/60 text-[14px] font-inter">Please sign the message in your wallet to verify ownership</p>
+      </div>
+    );
+  }
+
+  // Not verified state
+  if (!isVerified) {
+    return (
+      <div className="text-center py-12">
+        <AlertCircle className="mx-auto mb-6 h-12 w-12 text-[#FFCC00]" />
+        <p className="text-white text-[18px] mb-2 font-inter font-semibold">Verification Required</p>
+        <p className="text-white/60 text-[14px] mb-6 font-inter">Sign a message to verify wallet ownership</p>
+        <button
+          onClick={() => verifyWallet()}
+          className="px-6 py-3 rounded-xl bg-[#FFCC00] text-black font-inter text-[14px] font-semibold hover:bg-[#FFD735] transition-all duration-200"
+        >
+          Verify Wallet
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Balance Display */}
       <div className="flex justify-between items-center">
         <span className="text-white/60 text-[14px] font-inter">Your Balance</span>
-        <span className="text-white font-inter font-semibold">
-          {balance !== null ? `${formatSOL(balance)} SOL` : "Loading..."}
-        </span>
+        <div className="flex items-center gap-2">
+          {isLoadingBalance ? (
+            <span className="text-white/60 font-inter flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading...
+            </span>
+          ) : balanceError ? (
+            <span className="text-red-400 font-inter flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              Error
+              <button
+                onClick={() => refetchBalance()}
+                className="text-[#FFCC00] hover:text-[#FFD735] ml-1"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            </span>
+          ) : (
+            <span className="text-white font-inter font-semibold flex items-center gap-2">
+              {formatSOL(balance ?? 0)} SOL
+              <button
+                onClick={() => refetchBalance()}
+                className="text-white/40 hover:text-white transition-colors"
+                title="Refresh balance"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Amount Input */}
@@ -161,4 +219,6 @@ export function StakeForm() {
       </p>
     </div>
   );
-}
+});
+
+StakeForm.displayName = "StakeForm";
