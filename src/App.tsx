@@ -21,8 +21,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/mixer" element={<Mixer />} />
-            <Route path="/wallet-connected" element={<Mixer />} />
+            <Route path="/mix" element={<Mixer />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/staking" element={<Staking />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

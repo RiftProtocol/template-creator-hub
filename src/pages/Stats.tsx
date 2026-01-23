@@ -223,7 +223,7 @@ export default function Stats() {
                 zero-knowledge technology on Solana.
               </p>
               <Link
-                to="/mixer"
+                to="/mix"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-wallet text-black font-semibold hover:bg-wallet-hover transition-all shadow-[0_0_30px_0_hsl(48_100%_50%/0.4)]"
               >
                 <Shield className="h-5 w-5" />
