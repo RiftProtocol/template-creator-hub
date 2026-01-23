@@ -24,13 +24,11 @@ interface WalletContextProviderProps {
 export const WalletContextProvider: FC<WalletContextProviderProps> = ({
   children,
 }) => {
-  // Configure network - devnet for development, mainnet-beta for production
-  const network = WalletAdapterNetwork.Devnet;
+  // Configure network - mainnet-beta for production
+  const network = WalletAdapterNetwork.Mainnet;
 
-  // Use a public RPC endpoint that allows browser requests
-  // For production, use a dedicated RPC provider like Helius, QuickNode, or Alchemy
+  // Use a public RPC endpoint - for high traffic, consider a dedicated RPC provider
   const endpoint = useMemo(() => {
-    // Using devnet for development - switch to a proper RPC provider for mainnet in production
     return clusterApiUrl(network);
   }, [network]);
 
