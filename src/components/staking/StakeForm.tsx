@@ -1,4 +1,4 @@
-import { useState, forwardRef } from "react";
+import { useState } from "react";
 import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { useStaking } from "@/hooks/useStaking";
 import { useWalletConnection } from "@/hooks/useWalletConnection";
@@ -8,7 +8,7 @@ import { WalletButton } from "@/components/wallet";
 
 const QUICK_AMOUNTS = [0.5, 1, 5, 10];
 
-export const StakeForm = forwardRef<HTMLDivElement>((_, ref) => {
+export function StakeForm() {
   const [amount, setAmount] = useState("");
   const { stake, isStaking } = useStaking();
   const { connected, balance, isLoadingBalance, balanceError, refetchBalance } = useWalletConnection();
@@ -219,6 +219,4 @@ export const StakeForm = forwardRef<HTMLDivElement>((_, ref) => {
       </p>
     </div>
   );
-});
-
-StakeForm.displayName = "StakeForm";
+}
