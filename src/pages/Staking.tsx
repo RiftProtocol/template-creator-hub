@@ -23,7 +23,7 @@ export default function Staking() {
                   Stake SOL
                 </h1>
                 <p className="text-white/60 text-[16px] mt-2 font-inter">
-                  Earn 0.7% daily rewards • 3-day lockup
+                  Earn 1.45% daily rewards • 3-day lockup
                 </p>
                 
                 {/* Value Proposition */}
