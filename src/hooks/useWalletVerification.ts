@@ -1,5 +1,5 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 const VERIFICATION_KEY = "rift_wallet_verification";
@@ -14,6 +14,7 @@ export const useWalletVerification = () => {
   const { publicKey, signMessage, connected, disconnect } = useWallet();
   const [isVerified, setIsVerified] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const hasAttemptedVerification = useRef(false);
 
   // Check if wallet was previously verified (within 24 hours)
   const checkStoredVerification = useCallback(() => {
@@ -39,6 +40,8 @@ export const useWalletVerification = () => {
       toast.error("Wallet does not support message signing");
       return false;
     }
+
+    if (isVerifying) return false;
 
     setIsVerifying(true);
 
@@ -76,12 +79,13 @@ export const useWalletVerification = () => {
     } finally {
       setIsVerifying(false);
     }
-  }, [publicKey, signMessage, disconnect]);
+  }, [publicKey, signMessage, disconnect, isVerifying]);
 
   // Clear verification on disconnect
   const clearVerification = useCallback(() => {
     localStorage.removeItem(VERIFICATION_KEY);
     setIsVerified(false);
+    hasAttemptedVerification.current = false;
   }, []);
 
   // Auto-verify when wallet connects
@@ -90,15 +94,18 @@ export const useWalletVerification = () => {
       // Check if already verified
       if (checkStoredVerification()) {
         setIsVerified(true);
-      } else {
-        // Request verification
+        hasAttemptedVerification.current = true;
+      } else if (!hasAttemptedVerification.current && !isVerifying) {
+        // Request verification only once
+        hasAttemptedVerification.current = true;
         setIsVerified(false);
         verifyWallet();
       }
     } else {
       setIsVerified(false);
+      hasAttemptedVerification.current = false;
     }
-  }, [connected, publicKey, checkStoredVerification, verifyWallet]);
+  }, [connected, publicKey]); // Removed verifyWallet and checkStoredVerification from deps
 
   return {
     isVerified,
