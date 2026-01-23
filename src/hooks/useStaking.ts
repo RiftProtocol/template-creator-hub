@@ -132,7 +132,7 @@ export function useStaking() {
 
       toast({
         title: "Stake successful!",
-        description: `You staked ${amountSOL} SOL. Earning 0.7% daily!`,
+        description: `You staked ${amountSOL} SOL. Earning 1.45% daily!`,
       });
 
       // Refresh stakes
