@@ -27,10 +27,12 @@ export const WalletContextProvider: FC<WalletContextProviderProps> = ({
   // Configure network - mainnet-beta for production
   const network = WalletAdapterNetwork.Mainnet;
 
-  // Use a public RPC endpoint - for high traffic, consider a dedicated RPC provider
+  // Use a CORS-friendly public RPC endpoint for mainnet
+  // The default Solana mainnet RPC blocks browser requests, so we use an alternative
   const endpoint = useMemo(() => {
-    return clusterApiUrl(network);
-  }, [network]);
+    // Public mainnet RPC that allows browser CORS requests
+    return "https://api.mainnet-beta.solana.com";
+  }, []);
 
   // Initialize wallet adapters for the most popular wallets
   // Wallets that support Wallet Standard will be auto-detected
