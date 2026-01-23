@@ -17,6 +17,8 @@ export interface Stake {
   tx_signature: string;
   created_at: string;
   updated_at: string;
+  claimed_rewards_sol: number;
+  last_claimed_at: string | null;
 }
 
 export interface RewardClaim {
@@ -41,11 +43,12 @@ export interface UnstakeRequest {
 }
 
 export interface StakeWithRewards extends Stake {
-  earnedRewards: number;
-  totalValue: number;
+  totalEarnedRewards: number;  // Total rewards earned since staking
+  claimableRewards: number;    // Rewards available to claim (total - claimed)
+  totalValue: number;          // Principal + claimable rewards
   daysStaked: number;
   isLocked: boolean;
-  lockupRemaining: number; // hours remaining
+  lockupRemaining: number;     // hours remaining
 }
 
 // Calculate rewards based on stake data
@@ -57,9 +60,14 @@ export function calculateRewards(stake: Stake): StakeWithRewards {
   const msPerDay = 24 * 60 * 60 * 1000;
   const daysStaked = Math.max(0, (now.getTime() - stakedAt.getTime()) / msPerDay);
   
-  // 0.7% daily compound interest
-  const earnedRewards = stake.amount_sol * STAKING_CONFIG.DAILY_REWARD_RATE * daysStaked;
-  const totalValue = stake.amount_sol + earnedRewards;
+  // Simple interest: principal × rate × time
+  const totalEarnedRewards = stake.amount_sol * STAKING_CONFIG.DAILY_REWARD_RATE * daysStaked;
+  
+  // Claimable = total earned - already claimed
+  const claimableRewards = Math.max(0, totalEarnedRewards - (stake.claimed_rewards_sol || 0));
+  
+  // Total value = principal + claimable rewards
+  const totalValue = stake.amount_sol + claimableRewards;
   
   const isLocked = now < lockupEndsAt;
   const lockupRemaining = isLocked 
@@ -68,7 +76,8 @@ export function calculateRewards(stake: Stake): StakeWithRewards {
   
   return {
     ...stake,
-    earnedRewards,
+    totalEarnedRewards,
+    claimableRewards,
     totalValue,
     daysStaked,
     isLocked,

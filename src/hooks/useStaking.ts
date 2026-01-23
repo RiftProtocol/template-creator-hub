@@ -53,7 +53,7 @@ export function useStaking() {
       
       // Calculate totals
       const staked = stakesWithRewards.reduce((sum, s) => sum + s.amount_sol, 0);
-      const rewards = stakesWithRewards.reduce((sum, s) => sum + s.earnedRewards, 0);
+      const rewards = stakesWithRewards.reduce((sum, s) => sum + s.claimableRewards, 0);
       setTotalStaked(staked);
       setTotalRewards(rewards);
     } catch (error) {
