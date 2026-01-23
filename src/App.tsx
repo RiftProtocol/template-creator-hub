@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Mixer from "./pages/Mixer";
 import Stats from "./pages/Stats";
 import Staking from "./pages/Staking";
+import Protocol from "./pages/Protocol";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/mix" element={<Mixer />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/staking" element={<Staking />} />
+            <Route path="/protocol" element={<Protocol />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
