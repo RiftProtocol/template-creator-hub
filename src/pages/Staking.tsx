@@ -110,7 +110,11 @@ export default function Staking() {
 
               {/* Form Card */}
               <div className="rounded-3xl bg-white/5 backdrop-blur-[20px] p-8">
-                {activeTab === "stake" ? <StakeForm /> : <ActiveStakes />}
+                {activeTab === "stake" ? (
+                  <StakeForm onViewPositions={() => setActiveTab("positions")} />
+                ) : (
+                  <ActiveStakes />
+                )}
               </div>
             </div>
           </div>

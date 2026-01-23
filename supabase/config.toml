@@ -1,1 +1,10 @@
 project_id = "ahfbgstenyxmxxjjpjiw"
+
+[functions.get-sol-balance]
+verify_jwt = false
+
+[functions.process-payout]
+verify_jwt = false
+
+[functions.detect-stake-transaction]
+verify_jwt = false
