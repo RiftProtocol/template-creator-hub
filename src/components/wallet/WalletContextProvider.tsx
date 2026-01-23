@@ -28,10 +28,9 @@ export const WalletContextProvider: FC<WalletContextProviderProps> = ({
   const network = WalletAdapterNetwork.Mainnet;
 
   // Use a CORS-friendly public RPC endpoint for mainnet
-  // The default Solana mainnet RPC blocks browser requests, so we use an alternative
   const endpoint = useMemo(() => {
-    // Public mainnet RPC that allows browser CORS requests
-    return "https://api.mainnet-beta.solana.com";
+    // Ankr's public Solana RPC - allows browser CORS requests
+    return "https://rpc.ankr.com/solana";
   }, []);
 
   // Initialize wallet adapters for the most popular wallets
