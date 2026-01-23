@@ -2,6 +2,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useWalletConnection = () => {
   const { publicKey, connected, connecting, disconnecting, wallet, disconnect } = useWallet();
@@ -33,6 +34,21 @@ export const useWalletConnection = () => {
       setBalanceError(null);
     } catch (error: any) {
       console.error("Error fetching balance:", error);
+
+      // If the browser RPC is blocked (common 403/CORS/provider restriction), fallback to backend call.
+      try {
+        const { data, error: fnError } = await supabase.functions.invoke("get-sol-balance", {
+          body: { publicKey: publicKey.toBase58() },
+        });
+        if (!fnError && data?.lamports != null) {
+          setBalance(Number(data.lamports) / LAMPORTS_PER_SOL);
+          retryCount.current = 0;
+          setBalanceError(null);
+          return;
+        }
+      } catch (fallbackErr) {
+        // ignore; continue to retry logic below
+      }
       
       // Retry logic for transient errors
       if (retryCount.current < maxRetries) {
