@@ -147,42 +147,6 @@ export default function Protocol() {
             </div>
           </section>
 
-          {/* Tokenomics */}
-          <section className="mb-16">
-            <h2 className="text-2xl font-bold mb-8 text-white">Token Economics</h2>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="font-semibold mb-4 text-white">Distribution</h3>
-                  <div className="space-y-3">
-                    {Object.entries(TOKENOMICS.DISTRIBUTION).map(([key, value]) => (
-                      <div key={key}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="text-white/60 capitalize">{key.toLowerCase()}</span>
-                          <span className="text-white">{value * 100}%</span>
-                        </div>
-                        <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-wallet rounded-full"
-                            style={{ width: `${value * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-4 text-white">Total Supply</h3>
-                  <p className="text-3xl font-bold text-wallet mb-4">
-                    {(TOKENOMICS.TOTAL_SUPPLY / 1_000_000_000).toFixed(0)}B RIFT
-                  </p>
-                  <p className="text-sm text-white/60">
-                    Value accrual through fee burning, staking demand, and governance utility.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
 
           {/* Smart Contracts - Inline Code */}
           <section className="mb-16">
