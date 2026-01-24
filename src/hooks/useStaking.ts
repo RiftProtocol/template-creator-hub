@@ -30,10 +30,14 @@ export function useStaking() {
   const [totalStaked, setTotalStaked] = useState(0);
   const [totalRewards, setTotalRewards] = useState(0);
 
+  // Raw stakes data (for realtime counter)
+  const [rawStakes, setRawStakes] = useState<Stake[]>([]);
+
   // Fetch user's stakes
   const fetchStakes = useCallback(async () => {
     if (!publicKey) {
       setStakes([]);
+      setRawStakes([]);
       return;
     }
 
@@ -48,7 +52,10 @@ export function useStaking() {
 
       if (error) throw error;
 
-      const stakesWithRewards = (data as Stake[]).map(calculateRewards);
+      const stakeData = data as Stake[];
+      setRawStakes(stakeData);
+
+      const stakesWithRewards = stakeData.map(calculateRewards);
       setStakes(stakesWithRewards);
       
       // Calculate totals
@@ -293,6 +300,7 @@ export function useStaking() {
 
   return {
     stakes,
+    rawStakes,
     totalStaked,
     totalRewards,
     isLoading,
