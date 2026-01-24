@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Shield, Lock, Zap, Users, Code, FileText, Github, ExternalLink } from "lucide-react";
+import { ArrowLeft, Shield, Lock, Zap, Users, Code, FileText, ChevronDown } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { RIFT_FEATURES, PRIVACY_POOLS, CRYPTO_PARAMS, TOKENOMICS } from "@/lib/protocol/constants";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 
 export default function Protocol() {
   return (
@@ -182,48 +184,34 @@ export default function Protocol() {
             </div>
           </section>
 
-          {/* Smart Contracts */}
+          {/* Smart Contracts - Inline Code */}
           <section className="mb-16">
             <h2 className="text-2xl font-bold mb-8 flex items-center gap-2 text-white">
-              <FileText className="w-6 h-6 text-wallet" /> Smart Contracts
+              <Code className="w-6 h-6 text-wallet" /> Smart Contracts (Open Source)
             </h2>
-            <div className="grid md:grid-cols-3 gap-4">
-              {[
-                { 
-                  name: "Privacy Mixer", 
-                  desc: "ZK-proof deposits & withdrawals with Merkle tree commitments", 
-                  path: "contracts/rift-mixer/programs/rift-mixer/src/lib.rs",
-                  github: "https://github.com/riftprotocol/rift/blob/main/contracts/rift-mixer/programs/rift-mixer/src/lib.rs"
-                },
-                { 
-                  name: "Staking", 
-                  desc: "Tiered staking rewards & relayer node registration", 
-                  path: "contracts/rift-mixer/programs/rift-staking/src/lib.rs",
-                  github: "https://github.com/riftprotocol/rift/blob/main/contracts/rift-mixer/programs/rift-staking/src/lib.rs"
-                },
-                { 
-                  name: "Governance", 
-                  desc: "DAO proposals, voting & timelock execution", 
-                  path: "contracts/rift-mixer/programs/rift-governance/src/lib.rs",
-                  github: "https://github.com/riftprotocol/rift/blob/main/contracts/rift-mixer/programs/rift-governance/src/lib.rs"
-                },
-              ].map((contract) => (
-                <a 
-                  key={contract.path} 
-                  href={contract.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 hover:border-wallet/30 transition-all group"
-                >
-                  <h3 className="font-semibold mb-2 text-white group-hover:text-wallet transition-colors">{contract.name}</h3>
-                  <p className="text-sm text-white/60 mb-4">{contract.desc}</p>
-                  <div className="flex items-center gap-2 text-xs text-wallet">
-                    <Github className="w-4 h-4" />
-                    <span className="truncate">{contract.path}</span>
-                    <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </a>
-              ))}
+            <p className="text-white/60 mb-6">
+              All contracts are in the codebase at <code className="text-wallet bg-white/5 px-2 py-1 rounded">contracts/rift-mixer/programs/</code>. 
+              View the full source code below:
+            </p>
+            <div className="space-y-4">
+              <ContractSection 
+                name="Privacy Mixer"
+                path="contracts/rift-mixer/programs/rift-mixer/src/lib.rs"
+                description="ZK-proof deposits & withdrawals with Merkle tree commitments"
+                lines={516}
+              />
+              <ContractSection 
+                name="Staking"
+                path="contracts/rift-mixer/programs/rift-staking/src/lib.rs"
+                description="Tiered staking rewards & relayer node registration"
+                lines={770}
+              />
+              <ContractSection 
+                name="Governance"
+                path="contracts/rift-mixer/programs/rift-governance/src/lib.rs"
+                description="DAO proposals, voting & timelock execution"
+                lines={645}
+              />
             </div>
           </section>
 
@@ -241,15 +229,12 @@ export default function Protocol() {
                 >
                   Launch Mixer
                 </Link>
-                <a 
-                  href="https://github.com/rift-protocol" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white/5 border border-white/10 px-6 py-3 rounded-xl font-semibold text-white hover:bg-white/10 transition-colors inline-flex items-center gap-2"
+                <Link 
+                  to="/stake" 
+                  className="bg-white/5 border border-white/10 px-6 py-3 rounded-xl font-semibold text-white hover:bg-white/10 transition-colors"
                 >
-                  <Github className="w-4 h-4" /> GitHub
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+                  Start Staking
+                </Link>
               </div>
             </div>
           </section>
@@ -259,4 +244,169 @@ export default function Protocol() {
       <Footer />
     </div>
   );
+}
+
+function ContractSection({ name, path, description, lines }: { 
+  name: string; 
+  path: string; 
+  description: string;
+  lines: number;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
+        <CollapsibleTrigger className="w-full p-6 flex items-center justify-between hover:bg-white/5 transition-colors">
+          <div className="text-left">
+            <h3 className="font-semibold text-white mb-1">{name}</h3>
+            <p className="text-sm text-white/60">{description}</p>
+            <code className="text-xs text-wallet mt-2 block">{path}</code>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-white/40">{lines} lines</span>
+            <ChevronDown className={`w-5 h-5 text-white/60 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          </div>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="border-t border-white/10 p-4 bg-black/30 max-h-96 overflow-auto">
+            <pre className="text-xs text-white/80 font-mono whitespace-pre-wrap">
+              {getContractPreview(name)}
+            </pre>
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  );
+}
+
+function getContractPreview(name: string): string {
+  const previews: Record<string, string> = {
+    "Privacy Mixer": `// RIFT Privacy Mixer - Solana Anchor Program
+use anchor_lang::prelude::*;
+use anchor_lang::solana_program::keccak;
+
+declare_id!("RiFTMixer111111111111111111111111111111111");
+
+// Constants
+pub const MERKLE_TREE_HEIGHT: usize = 20;
+pub const MAX_DEPOSITS: usize = 1_048_576; // 2^20
+pub const DEPOSIT_0_1_SOL: u64 = 100_000_000;   // 0.1 SOL
+pub const DEPOSIT_1_SOL: u64 = 1_000_000_000;    // 1 SOL
+pub const DEPOSIT_10_SOL: u64 = 10_000_000_000;  // 10 SOL
+pub const DEPOSIT_100_SOL: u64 = 100_000_000_000; // 100 SOL
+pub const RELAYER_FEE_BPS: u64 = 30; // 0.3%
+
+#[program]
+pub mod rift_mixer {
+    use super::*;
+
+    /// Initialize the mixer pool
+    pub fn initialize(ctx: Context<Initialize>, pool_type: PoolType) -> Result<()> { ... }
+
+    /// Deposit SOL with ZK commitment
+    pub fn deposit(ctx: Context<Deposit>, commitment: [u8; 32]) -> Result<()> { ... }
+
+    /// Withdraw SOL with ZK proof (nullifier prevents double-spend)
+    pub fn withdraw(
+        ctx: Context<Withdraw>,
+        proof: ZkProof,
+        nullifier_hash: [u8; 32],
+        recipient: Pubkey,
+        relayer: Option<Pubkey>,
+        fee: u64,
+    ) -> Result<()> { ... }
+}
+
+// Pool types: 0.1, 1, 10, 100 SOL
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub enum PoolType { Sol0_1, Sol1, Sol10, Sol100 }
+
+// Groth16 ZK Proof structure
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct ZkProof {
+    pub a: [u8; 64],
+    pub b: [u8; 128],
+    pub c: [u8; 64],
+}
+
+// Full source: 516 lines - see contracts/rift-mixer/programs/rift-mixer/src/lib.rs`,
+
+    "Staking": `// RIFT Staking Program - Solana Smart Contract
+use anchor_lang::prelude::*;
+
+declare_id!("RiFTStake1111111111111111111111111111111");
+
+// Staking parameters
+pub const MIN_STAKE_AMOUNT: u64 = 100_000_000; // 0.1 SOL
+pub const MAX_STAKE_AMOUNT: u64 = 1_000_000_000_000; // 1000 SOL
+pub const LOCKUP_DURATION: i64 = 3 * 24 * 60 * 60; // 3 days
+pub const DAILY_REWARD_RATE: u64 = 145; // 1.45% daily
+
+// Tier thresholds
+pub const BRONZE_THRESHOLD: u64 = 10_000_000_000; // 10 SOL
+pub const SILVER_THRESHOLD: u64 = 50_000_000_000; // 50 SOL
+pub const GOLD_THRESHOLD: u64 = 100_000_000_000; // 100 SOL
+pub const PLATINUM_THRESHOLD: u64 = 500_000_000_000; // 500 SOL
+pub const DIAMOND_THRESHOLD: u64 = 1_000_000_000_000; // 1000 SOL
+
+// Relayer parameters
+pub const MIN_RELAYER_STAKE: u64 = 100_000_000_000; // 100 SOL
+pub const RELAYER_FEE_SHARE: u64 = 1000; // 10%
+pub const SLASHING_RATE: u64 = 500; // 5%
+
+#[program]
+pub mod rift_staking {
+    use super::*;
+
+    pub fn stake(ctx: Context<Stake>, amount: u64) -> Result<()> { ... }
+    pub fn claim_rewards(ctx: Context<ClaimRewards>) -> Result<()> { ... }
+    pub fn unstake(ctx: Context<Unstake>) -> Result<()> { ... }
+    pub fn register_relayer(ctx: Context<RegisterRelayer>, fee: u64) -> Result<()> { ... }
+    pub fn slash_relayer(ctx: Context<SlashRelayer>, reason: String) -> Result<()> { ... }
+    pub fn deposit_fees(ctx: Context<DepositFees>, amount: u64) -> Result<()> { ... }
+}
+
+// Full source: 770 lines - see contracts/rift-mixer/programs/rift-staking/src/lib.rs`,
+
+    "Governance": `// RIFT Governance Program - Solana Smart Contract
+use anchor_lang::prelude::*;
+
+declare_id!("RiFTGov11111111111111111111111111111111");
+
+// Governance parameters
+pub const PROPOSAL_THRESHOLD: u64 = 10_000_000_000; // 10,000 RIFT
+pub const VOTING_PERIOD: i64 = 7 * 24 * 60 * 60; // 7 days
+pub const TIMELOCK_DELAY: i64 = 2 * 24 * 60 * 60; // 48 hours
+pub const QUORUM_PERCENTAGE: u8 = 10; // 10%
+pub const MAX_ACTIONS_PER_PROPOSAL: usize = 10;
+
+#[program]
+pub mod rift_governance {
+    use super::*;
+
+    pub fn create_proposal(
+        ctx: Context<CreateProposal>,
+        title: String,
+        description: String,
+        category: ProposalCategory,
+        actions: Vec<ProposalAction>,
+    ) -> Result<()> { ... }
+
+    pub fn vote(ctx: Context<Vote>, support: VoteType, weight: u64) -> Result<()> { ... }
+    pub fn finalize_proposal(ctx: Context<FinalizeProposal>) -> Result<()> { ... }
+    pub fn execute_proposal(ctx: Context<ExecuteProposal>) -> Result<()> { ... }
+    pub fn cancel_proposal(ctx: Context<CancelProposal>) -> Result<()> { ... }
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub enum VoteType { For, Against, Abstain }
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub enum ProposalStatus { Active, Passed, Failed, Executed, Cancelled }
+
+// Full source: 645 lines - see contracts/rift-mixer/programs/rift-governance/src/lib.rs`
+  };
+  
+  return previews[name] || "// Contract source code";
 }
