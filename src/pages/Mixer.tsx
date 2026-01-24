@@ -181,13 +181,6 @@ export default function Mixer() {
             <ArrowLeft className="h-4 w-4" /> Back to Home
           </Link>
 
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-full bg-wallet/20 flex items-center justify-center mx-auto mb-4">
-              <Shield className="h-8 w-8 text-wallet" />
-            </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Privacy Mixer</h1>
-            <p className="text-white/60">Send SOL, receive fresh untraceable funds</p>
-          </div>
 
           {/* Progress Steps */}
           <div className="flex justify-between mb-8">
