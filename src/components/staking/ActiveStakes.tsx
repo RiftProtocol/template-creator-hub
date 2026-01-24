@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock, Unlock, Lock } from "lucide-react";
 import { useStaking } from "@/hooks/useStaking";
 import { formatSOL, StakeWithRewards } from "@/lib/staking";
 import { RealtimeRewardsCounter } from "./RealtimeRewardsCounter";
-
+import { LockupCountdown } from "./LockupCountdown";
 export function ActiveStakes() {
   const { stakes, rawStakes, totalStaked, isLoading, unstake, claimRewards, isUnstaking, isClaiming } = useStaking();
   const [expandedStake, setExpandedStake] = useState<string | null>(null);
@@ -100,20 +100,21 @@ function StakeCard({ stake, isExpanded, onToggle, onUnstake, onClaimRewards, isU
             <div className="text-white font-inter font-semibold text-[16px]">{formatSOL(stake.amount_sol)} SOL</div>
             <div className="text-[12px] font-inter">
               {stake.isLocked ? (
-                <span className="flex items-center gap-1 text-orange-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 6V12L16 14"/>
-                  </svg>
-                  {stake.lockupRemaining}h remaining
-                </span>
+                <div className="flex flex-col gap-0.5">
+                  <span className="flex items-center gap-1 text-orange-400">
+                    <Lock className="w-3 h-3" />
+                    <span>Locked for 72h</span>
+                  </span>
+                  <span className="flex items-center gap-1 text-orange-400/80">
+                    <Clock className="w-3 h-3" />
+                    <LockupCountdown lockupEndsAt={stake.lockup_ends_at} />
+                    <span className="text-white/40">remaining</span>
+                  </span>
+                </div>
               ) : (
                 <span className="flex items-center gap-1 text-green-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                    <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
-                  </svg>
-                  Unlocked
+                  <Unlock className="w-3 h-3" />
+                  Unlocked - Ready to withdraw
                 </span>
               )}
             </div>
