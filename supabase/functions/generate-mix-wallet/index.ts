@@ -1,6 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import * as ed from "https://esm.sh/@noble/ed25519@2.1.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -35,26 +33,37 @@ function base58Encode(bytes: Uint8Array): string {
   return output;
 }
 
-// Generate a Solana keypair using @noble/ed25519
+// Generate a Solana-compatible keypair using Web Crypto Ed25519
 async function generateSolanaKeypair(): Promise<{ publicKey: string; secretKey: number[] }> {
-  // Generate random 32-byte private key
-  const privateKey = crypto.getRandomValues(new Uint8Array(32));
-  
-  // Get public key from private key
-  const publicKey = await ed.getPublicKeyAsync(privateKey);
-  
-  // Solana secret key is 64 bytes: 32 bytes private + 32 bytes public
+  // Generate Ed25519 keypair using Web Crypto
+  const keyPair = await crypto.subtle.generateKey(
+    { name: "Ed25519" },
+    true,
+    ["sign", "verify"]
+  ) as CryptoKeyPair;
+
+  // Export the private key in PKCS8 format
+  const privateKeyBuffer = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+  const privateKeyBytes = new Uint8Array(privateKeyBuffer);
+  // The last 32 bytes of PKCS8 Ed25519 export are the seed
+  const seed = privateKeyBytes.slice(-32);
+
+  // Export the public key in raw format (32 bytes)
+  const publicKeyBuffer = await crypto.subtle.exportKey("raw", keyPair.publicKey);
+  const publicKeyBytes = new Uint8Array(publicKeyBuffer);
+
+  // Solana secret key is 64 bytes: 32 bytes seed + 32 bytes public
   const secretKey = new Uint8Array(64);
-  secretKey.set(privateKey, 0);
-  secretKey.set(publicKey, 32);
-  
+  secretKey.set(seed, 0);
+  secretKey.set(publicKeyBytes, 32);
+
   return {
-    publicKey: base58Encode(publicKey),
+    publicKey: base58Encode(publicKeyBytes),
     secretKey: Array.from(secretKey),
   };
 }
 
-serve(async (req) => {
+Deno.serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
