@@ -1,36 +1,24 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, Shield, TrendingUp, Users, Lock, Activity } from "lucide-react";
 import { Header } from "@/components/layout/Header";
-import { POOL_INFO } from "@/lib/umbra";
-
-const poolIcons: Record<string, string> = {
-  SOL: "◎",
-  USDC: "$",
-  USDT: "₮",
-  BONK: "🐕",
-};
 
 export default function Stats() {
-  const pools = Object.values(POOL_INFO);
-  
-  const totalAnonymitySet = pools.reduce((acc, p) => acc + p.anonymitySet, 0);
-
   const globalStats = [
     {
       label: "Total Value Locked",
-      value: "$14.2M",
+      value: "$314,543",
       change: "+12.5%",
       icon: Lock,
     },
     {
       label: "Total Deposits",
-      value: "15,420",
+      value: "764",
       change: "+8.3%",
       icon: TrendingUp,
     },
     {
       label: "Unique Users",
-      value: "4,892",
+      value: "512",
       change: "+15.2%",
       icon: Users,
     },
@@ -42,13 +30,20 @@ export default function Stats() {
     },
   ];
 
+  const solPools = [
+    { tier: "0.1 SOL", deposits: 156, anonymitySet: 89 },
+    { tier: "1 SOL", deposits: 287, anonymitySet: 142 },
+    { tier: "5 SOL", deposits: 198, anonymitySet: 97 },
+    { tier: "10 SOL", deposits: 123, anonymitySet: 61 },
+  ];
+
   const recentActivity = [
-    { type: "Deposit", pool: "SOL", amount: "10 SOL", time: "2 min ago" },
-    { type: "Withdraw", pool: "USDC", amount: "$1,000", time: "5 min ago" },
-    { type: "Deposit", pool: "SOL", amount: "1 SOL", time: "8 min ago" },
-    { type: "Deposit", pool: "BONK", amount: "10M BONK", time: "12 min ago" },
-    { type: "Withdraw", pool: "SOL", amount: "100 SOL", time: "15 min ago" },
-    { type: "Deposit", pool: "USDT", amount: "$100", time: "18 min ago" },
+    { type: "Deposit", amount: "1.5 SOL", time: "2 min ago" },
+    { type: "Withdraw", amount: "0.8 SOL", time: "5 min ago" },
+    { type: "Deposit", amount: "3.2 SOL", time: "8 min ago" },
+    { type: "Withdraw", amount: "0.5 SOL", time: "12 min ago" },
+    { type: "Deposit", amount: "2.1 SOL", time: "15 min ago" },
+    { type: "Withdraw", amount: "4.7 SOL", time: "18 min ago" },
   ];
 
   return (
@@ -72,7 +67,7 @@ export default function Stats() {
               Protocol Statistics
             </h1>
             <p className="text-white/60">
-              Real-time metrics for the Umbra privacy protocol
+              Real-time metrics for the RIFT privacy protocol
             </p>
           </div>
 
@@ -99,14 +94,14 @@ export default function Stats() {
             {/* Pool Stats */}
             <div className="lg:col-span-2">
               <h2 className="text-xl font-bold text-white mb-4">
-                Pool Statistics
+                SOL Pool Statistics
               </h2>
               <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/10">
                       <th className="text-left text-white/60 text-sm font-medium p-4">
-                        Pool
+                        Pool Tier
                       </th>
                       <th className="text-right text-white/60 text-sm font-medium p-4">
                         Total Deposits
@@ -120,37 +115,35 @@ export default function Stats() {
                     </tr>
                   </thead>
                   <tbody>
-                    {pools.map((pool) => (
+                    {solPools.map((pool) => (
                       <tr
-                        key={pool.type}
+                        key={pool.tier}
                         className="border-b border-white/5 hover:bg-white/5 transition-colors"
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <span className="text-2xl">
-                              {poolIcons[pool.type]}
-                            </span>
+                            <span className="text-2xl">◎</span>
                             <div>
                               <p className="text-white font-semibold">
-                                {pool.symbol}
+                                {pool.tier}
                               </p>
                               <p className="text-white/60 text-sm">
-                                {pool.name}
+                                Solana
                               </p>
                             </div>
                           </div>
                         </td>
                         <td className="text-right p-4">
                           <p className="text-white font-medium">
-                            {pool.totalDeposits.toLocaleString()}
+                            {pool.deposits.toLocaleString()}
                           </p>
-                          <p className="text-white/60 text-sm">{pool.symbol}</p>
+                          <p className="text-white/60 text-sm">deposits</p>
                         </td>
                         <td className="text-right p-4">
                           <p className="text-wallet font-semibold">
                             {pool.anonymitySet.toLocaleString()}
                           </p>
-                          <p className="text-white/60 text-sm">deposits</p>
+                          <p className="text-white/60 text-sm">active</p>
                         </td>
                         <td className="text-right p-4">
                           <div className="inline-flex items-center gap-2 px-3 py-1 bg-wallet/20 rounded-full">
@@ -188,9 +181,7 @@ export default function Stats() {
                               : "bg-blue-500/20"
                           }`}
                         >
-                          <span className="text-sm">
-                            {poolIcons[activity.pool]}
-                          </span>
+                          <span className="text-sm">◎</span>
                         </div>
                         <div>
                           <p className="text-white text-sm font-medium">
@@ -219,7 +210,7 @@ export default function Stats() {
                 Ready to Go Private?
               </h2>
               <p className="text-white/60 mb-6 max-w-lg mx-auto">
-                Join thousands of users protecting their financial privacy with
+                Join hundreds of users protecting their financial privacy with
                 zero-knowledge technology on Solana.
               </p>
               <Link
