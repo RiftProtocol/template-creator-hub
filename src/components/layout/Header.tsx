@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { WalletButton } from "@/components/wallet";
-
-const logo = "/logo.png";
+import siteLogo from "@/assets/site-logo.png";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
@@ -36,7 +35,7 @@ export const Header = () => {
         <div className="lg:container mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo */}
           <Link to="/" className="cursor-pointer">
-            <img src={logo} alt="Logo" className="h-8" />
+            <img src={siteLogo} alt="RIFT logo" className="h-8" />
           </Link>
 
           {/* Desktop Nav */}
