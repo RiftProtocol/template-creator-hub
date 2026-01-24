@@ -23,6 +23,7 @@ export default function Mixer() {
   const [outputPrivateKey, setOutputPrivateKey] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<Date | null>(null);
 
@@ -107,6 +108,39 @@ export default function Mixer() {
     } catch (err) {
       toast({ title: "Mix failed", description: (err as Error).message, variant: "destructive" });
       resetMixer();
+    }
+  };
+
+  const refreshDetection = async () => {
+    if (!sessionId) return;
+    setIsRefreshing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("detect-mix-transaction", {
+        body: { sessionId },
+      });
+
+      if (error) throw error;
+
+      if (data?.found && data?.status === "deposit_detected") {
+        if (detectionInterval.current) clearInterval(detectionInterval.current);
+        toast({ title: "Deposit detected!", description: "Processing your mix..." });
+        setStep("processing");
+        processMix(sessionId);
+        return;
+      }
+
+      toast({
+        title: "Still waiting",
+        description: data?.message || "No matching transaction found yet",
+      });
+    } catch (err) {
+      toast({
+        title: "Refresh failed",
+        description: (err as Error).message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -216,7 +250,24 @@ export default function Mixer() {
                     <span className="text-sm">Waiting for transaction...</span>
                   </div>
                 )}
-                <Button variant="outline" onClick={resetMixer} className="border-white/20 bg-transparent text-white/60 hover:bg-white/10 hover:text-white">Cancel</Button>
+                <div className="flex items-center justify-center gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={refreshDetection}
+                    disabled={isRefreshing}
+                    className="border-white/20 bg-transparent text-white/60 hover:bg-white/10 hover:text-white"
+                  >
+                    {isRefreshing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
+                    Refresh
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={resetMixer}
+                    className="border-white/20 bg-transparent text-white/60 hover:bg-white/10 hover:text-white"
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </div>
             )}
 
