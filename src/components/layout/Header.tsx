@@ -35,7 +35,7 @@ export const Header = () => {
         <div className="lg:container mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo */}
           <Link to="/" className="cursor-pointer">
-            <img src={siteLogo} alt="RIFT logo" className="h-8" />
+            <img src={siteLogo} alt="RIFT logo" className="h-16" />
           </Link>
 
           {/* Desktop Nav */}
