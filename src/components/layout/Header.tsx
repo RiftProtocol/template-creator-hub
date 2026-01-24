@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
-import logo from "@/assets/logo.svg";
 import { WalletButton } from "@/components/wallet";
+
+const logo = "/logo.png";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
