@@ -65,7 +65,8 @@ export default function Mixer() {
 
   const startDetection = (sid: string) => {
     setIsDetecting(true);
-    detectionInterval.current = setInterval(async () => {
+
+    const checkOnce = async () => {
       try {
         const { data } = await supabase.functions.invoke("detect-mix-transaction", {
           body: { sessionId: sid },
@@ -84,7 +85,11 @@ export default function Mixer() {
       } catch (err) {
         console.error("Detection error:", err);
       }
-    }, 5000);
+    };
+
+    // Run immediately, then poll faster for snappier UX
+    void checkOnce();
+    detectionInterval.current = setInterval(checkOnce, 2000);
   };
 
   const processMix = async (sid: string) => {

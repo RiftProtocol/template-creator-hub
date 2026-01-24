@@ -77,6 +77,57 @@ Deno.serve(async (req: Request) => {
 
     console.log(`[detect-mix-transaction] Checking ${depositAddress} for ${expectedAmount} SOL`);
 
+    // Helper: quick balance check (covers cases where signatures/parsed tx aren't immediately available)
+    const getBalanceLamports = async (pubkey: string): Promise<number | null> => {
+      const balanceRes = await fetch(rpcUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "getBalance",
+          params: [pubkey, { commitment: "confirmed" }],
+        }),
+      });
+
+      const balanceJson = await balanceRes.json();
+      const value = balanceJson?.result?.value;
+      return typeof value === "number" ? value : null;
+    };
+
+    // If the deposit address already has (roughly) the expected funds, mark as detected even if we
+    // can't immediately resolve the signature. This avoids users waiting unnecessarily.
+    const depositBalanceLamports = await getBalanceLamports(depositAddress);
+    if (typeof depositBalanceLamports === "number") {
+      const depositBalanceSol = depositBalanceLamports / LAMPORTS_PER_SOL;
+      if (depositBalanceSol >= expectedAmount - 0.001) {
+        console.log(
+          `[detect-mix-transaction] Balance indicates deposit: ${depositBalanceSol} SOL (expected ${expectedAmount})`
+        );
+
+        await supabase
+          .from("mix_sessions")
+          .update({
+            status: "deposit_detected",
+            deposit_detected_at: new Date().toISOString(),
+            // tx_signature_in may remain null here if we couldn't resolve it quickly
+          })
+          .eq("id", sessionId);
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            found: true,
+            status: "deposit_detected",
+            txSignature: null,
+            amountReceived: depositBalanceSol,
+            detectionMethod: "balance",
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     // Get recent signatures
     const signaturesResponse = await fetch(rpcUrl, {
       method: "POST",
@@ -85,7 +136,7 @@ Deno.serve(async (req: Request) => {
         jsonrpc: "2.0",
         id: 1,
         method: "getSignaturesForAddress",
-        params: [depositAddress, { limit: 10 }],
+        params: [depositAddress, { limit: 25, commitment: "confirmed" }],
       }),
     });
 
@@ -107,7 +158,14 @@ Deno.serve(async (req: Request) => {
           jsonrpc: "2.0",
           id: 1,
           method: "getTransaction",
-          params: [sig.signature, { encoding: "jsonParsed", maxSupportedTransactionVersion: 0 }],
+          params: [
+            sig.signature,
+            {
+              encoding: "jsonParsed",
+              commitment: "confirmed",
+              maxSupportedTransactionVersion: 0,
+            },
+          ],
         }),
       });
 
