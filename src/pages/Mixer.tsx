@@ -221,6 +221,9 @@ export default function Mixer() {
                 <Loader2 className="h-12 w-12 animate-spin text-wallet mx-auto" />
                 <h3 className="text-xl font-semibold text-white">Processing Mix</h3>
                 <p className="text-white/60">Generating fresh wallet and transferring funds...</p>
+                <Button variant="outline" onClick={resetMixer} className="border-white/20 text-white/60 mt-4">
+                  Cancel & Start Over
+                </Button>
               </div>
             )}
 
