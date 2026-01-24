@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      mix_sessions: {
+        Row: {
+          amount_sol: number
+          completed_at: string | null
+          created_at: string
+          deposit_address: string | null
+          deposit_detected_at: string | null
+          deposit_private_key_encrypted: string | null
+          expires_at: string
+          id: string
+          output_address: string | null
+          output_private_key: string | null
+          status: string
+          tx_signature_in: string | null
+          tx_signature_out: string | null
+          updated_at: string
+          user_wallet: string
+        }
+        Insert: {
+          amount_sol: number
+          completed_at?: string | null
+          created_at?: string
+          deposit_address?: string | null
+          deposit_detected_at?: string | null
+          deposit_private_key_encrypted?: string | null
+          expires_at?: string
+          id?: string
+          output_address?: string | null
+          output_private_key?: string | null
+          status?: string
+          tx_signature_in?: string | null
+          tx_signature_out?: string | null
+          updated_at?: string
+          user_wallet: string
+        }
+        Update: {
+          amount_sol?: number
+          completed_at?: string | null
+          created_at?: string
+          deposit_address?: string | null
+          deposit_detected_at?: string | null
+          deposit_private_key_encrypted?: string | null
+          expires_at?: string
+          id?: string
+          output_address?: string | null
+          output_private_key?: string | null
+          status?: string
+          tx_signature_in?: string | null
+          tx_signature_out?: string | null
+          updated_at?: string
+          user_wallet?: string
+        }
+        Relationships: []
+      }
       reward_claims: {
         Row: {
           amount_sol: number
