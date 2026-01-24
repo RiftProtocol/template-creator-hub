@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useStaking } from "@/hooks/useStaking";
 import { formatSOL, StakeWithRewards } from "@/lib/staking";
+import { RealtimeRewardsCounter } from "./RealtimeRewardsCounter";
 
 export function ActiveStakes() {
-  const { stakes, totalStaked, totalRewards, isLoading, unstake, claimRewards, isUnstaking, isClaiming } = useStaking();
+  const { stakes, rawStakes, totalStaked, isLoading, unstake, claimRewards, isUnstaking, isClaiming } = useStaking();
   const [expandedStake, setExpandedStake] = useState<string | null>(null);
 
   if (isLoading) {
@@ -37,7 +38,9 @@ export function ActiveStakes() {
         </div>
         <div className="rounded-2xl bg-gradient-to-r from-green-500/10 to-green-500/5 border border-green-500/20 p-5">
           <div className="text-green-400/80 text-[12px] font-inter mb-1">Total Earned</div>
-          <div className="text-[24px] font-inter font-bold text-green-400">+{formatSOL(totalRewards)} SOL</div>
+          <div className="text-[24px] font-inter font-bold text-green-400">
+            <RealtimeRewardsCounter stakes={rawStakes} />
+          </div>
         </div>
       </div>
 
