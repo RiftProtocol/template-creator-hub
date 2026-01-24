@@ -1,13 +1,12 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import * as ed from "https://esm.sh/@noble/ed25519@2.1.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const RPC_URL = "https://api.mainnet-beta.solana.com";
+// Use devnet for testing - switch to mainnet for production
+const RPC_URL = "https://api.devnet.solana.com";
 const LAMPORTS_PER_SOL = 1_000_000_000;
 
 // Base58 helpers
@@ -61,88 +60,146 @@ function base58Decode(str: string): Uint8Array {
   return new Uint8Array(bytes.reverse());
 }
 
-// Generate keypair using @noble/ed25519
+// Generate keypair using Web Crypto Ed25519
 async function generateSolanaKeypair(): Promise<{ publicKey: string; secretKey: number[] }> {
-  const privateKey = crypto.getRandomValues(new Uint8Array(32));
-  const publicKey = await ed.getPublicKeyAsync(privateKey);
+  const keyPair = await crypto.subtle.generateKey(
+    { name: "Ed25519" },
+    true,
+    ["sign", "verify"]
+  ) as CryptoKeyPair;
+
+  const privateKeyBuffer = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+  const privateKeyBytes = new Uint8Array(privateKeyBuffer);
+  const seed = privateKeyBytes.slice(-32);
+
+  const publicKeyBuffer = await crypto.subtle.exportKey("raw", keyPair.publicKey);
+  const publicKeyBytes = new Uint8Array(publicKeyBuffer);
+
   const secretKey = new Uint8Array(64);
-  secretKey.set(privateKey, 0);
-  secretKey.set(publicKey, 32);
-  return { publicKey: base58Encode(publicKey), secretKey: Array.from(secretKey) };
+  secretKey.set(seed, 0);
+  secretKey.set(publicKeyBytes, 32);
+
+  return { publicKey: base58Encode(publicKeyBytes), secretKey: Array.from(secretKey) };
 }
 
-// Build and sign a Solana transfer transaction manually
+// Import private key for signing
+async function importPrivateKey(secretKey: Uint8Array): Promise<CryptoKey> {
+  const seed = secretKey.slice(0, 32);
+  
+  // Build PKCS8 format for Ed25519
+  // RFC 8410 PKCS#8 format: 302e020100300506032b657004220420 + 32 bytes seed
+  const pkcs8Header = new Uint8Array([
+    0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06,
+    0x03, 0x2b, 0x65, 0x70, 0x04, 0x22, 0x04, 0x20
+  ]);
+  const pkcs8 = new Uint8Array(pkcs8Header.length + 32);
+  pkcs8.set(pkcs8Header, 0);
+  pkcs8.set(seed, pkcs8Header.length);
+
+  return await crypto.subtle.importKey(
+    "pkcs8",
+    pkcs8,
+    { name: "Ed25519" },
+    false,
+    ["sign"]
+  );
+}
+
+// Build and sign a Solana transfer transaction
 async function buildAndSignTransfer(
   fromSecretKey: Uint8Array,
   toPublicKey: Uint8Array,
   lamports: number,
   recentBlockhash: string
 ): Promise<string> {
-  const fromPrivateKey = fromSecretKey.slice(0, 32);
   const fromPublicKey = fromSecretKey.slice(32, 64);
 
-  // System program ID
-  const systemProgramId = base58Decode("11111111111111111111111111111111");
+  // System program ID (all zeros effectively, but base58 encoded as 32 1's)
+  const systemProgramId = new Uint8Array(32); // All zeros for system program
 
-  // Instruction data: 2 (transfer) + 8 bytes lamports (little-endian)
+  // Instruction data: 2 (transfer) as u32 LE + lamports as u64 LE
   const instructionData = new Uint8Array(12);
   const dataView = new DataView(instructionData.buffer);
-  dataView.setUint32(0, 2, true); // Transfer instruction index
+  dataView.setUint32(0, 2, true); // Transfer instruction
   dataView.setBigUint64(4, BigInt(lamports), true);
 
-  // Build compact message
-  const numRequiredSignatures = 1;
-  const numReadonlySignedAccounts = 0;
-  const numReadonlyUnsignedAccounts = 1; // System program
-
-  // Message components
-  const header = new Uint8Array([numRequiredSignatures, numReadonlySignedAccounts, numReadonlyUnsignedAccounts]);
-  
-  // Accounts: from, to, system program
-  const numAccounts = 3;
-  const accounts = new Uint8Array(1 + 32 * numAccounts);
-  accounts[0] = numAccounts;
-  accounts.set(fromPublicKey, 1);
-  accounts.set(toPublicKey, 33);
-  accounts.set(systemProgramId, 65);
-
-  // Blockhash
-  const blockhashBytes = base58Decode(recentBlockhash);
-
-  // Instructions
-  const instruction = new Uint8Array([
-    1, // Number of instructions
-    2, // Program ID index (system program)
-    2, // Number of account indices
-    0, // From account index
-    1, // To account index
-    12, // Data length
-    ...instructionData,
+  // Build the message
+  const header = new Uint8Array([
+    1, // numRequiredSignatures
+    0, // numReadonlySignedAccounts
+    1  // numReadonlyUnsignedAccounts (system program)
   ]);
 
-  // Combine message
-  const message = new Uint8Array(header.length + accounts.length + blockhashBytes.length + instruction.length);
+  // Account keys: from, to, system program
+  const accountKeys = new Uint8Array(32 * 3);
+  accountKeys.set(fromPublicKey, 0);
+  accountKeys.set(toPublicKey, 32);
+  accountKeys.set(systemProgramId, 64);
+
+  // Blockhash (32 bytes)
+  const blockhashBytes = base58Decode(recentBlockhash);
+
+  // Compact-u16 for number of accounts (3)
+  const numAccountsCompact = new Uint8Array([3]);
+
+  // Instructions section
+  // Compact-u16 for number of instructions (1)
+  const numInstructionsCompact = new Uint8Array([1]);
+  
+  // Instruction:
+  // - program_id_index: 1 byte (2 = system program)
+  // - account indices: compact-u16 length + indices
+  // - data: compact-u16 length + data
+  const instruction = new Uint8Array([
+    2,  // program id index (system program at index 2)
+    2,  // compact-u16: 2 account indices
+    0,  // from account index
+    1,  // to account index
+    12, // compact-u16: 12 bytes of data
+    ...instructionData
+  ]);
+
+  // Assemble message
+  const messageLength = header.length + 1 + accountKeys.length + blockhashBytes.length + 1 + instruction.length;
+  const message = new Uint8Array(messageLength);
   let offset = 0;
-  message.set(header, offset); offset += header.length;
-  message.set(accounts, offset); offset += accounts.length;
-  message.set(blockhashBytes, offset); offset += blockhashBytes.length;
+  
+  message.set(header, offset);
+  offset += header.length;
+  
+  message.set(numAccountsCompact, offset);
+  offset += numAccountsCompact.length;
+  
+  message.set(accountKeys, offset);
+  offset += accountKeys.length;
+  
+  message.set(blockhashBytes, offset);
+  offset += blockhashBytes.length;
+  
+  message.set(numInstructionsCompact, offset);
+  offset += numInstructionsCompact.length;
+  
   message.set(instruction, offset);
 
-  // Sign message
-  const signature = await ed.signAsync(message, fromPrivateKey);
+  // Sign the message
+  const privateKey = await importPrivateKey(fromSecretKey);
+  const signatureBuffer = await crypto.subtle.sign("Ed25519", privateKey, message);
+  const signature = new Uint8Array(signatureBuffer);
 
-  // Build transaction
+  // Build the full transaction
+  // Format: num_signatures (compact-u16) + signatures + message
   const transaction = new Uint8Array(1 + 64 + message.length);
-  transaction[0] = 1; // Number of signatures
+  transaction[0] = 1; // 1 signature
   transaction.set(signature, 1);
   transaction.set(message, 65);
 
+  console.log(`[process-mix] Transaction built, length: ${transaction.length} bytes`);
+
   // Return as base64
-  const base64 = btoa(String.fromCharCode(...transaction));
-  return base64;
+  return btoa(String.fromCharCode(...transaction));
 }
 
-serve(async (req) => {
+Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -228,18 +285,19 @@ serve(async (req) => {
 
     console.log(`[process-mix] Deposit balance: ${balance / LAMPORTS_PER_SOL} SOL`);
 
-    const fee = 5000;
+    const fee = 5000; // 0.000005 SOL for transaction fee
     const transferAmount = balance - fee;
 
     if (transferAmount <= 0) {
       await supabase.from("mix_sessions").update({ status: "failed" }).eq("id", sessionId);
       return new Response(
-        JSON.stringify({ success: false, error: "Insufficient balance" }),
+        JSON.stringify({ success: false, error: "Insufficient balance for transfer" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Get recent blockhash
+    // Get recent blockhash with finalized commitment for more stability
+    console.log(`[process-mix] Getting recent blockhash...`);
     const blockhashResponse = await fetch(RPC_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -247,15 +305,24 @@ serve(async (req) => {
         jsonrpc: "2.0",
         id: 1,
         method: "getLatestBlockhash",
-        params: [{ commitment: "confirmed" }],
+        params: [{ commitment: "finalized" }],
       }),
     });
     const blockhashData = await blockhashResponse.json();
+    
+    if (blockhashData.error) {
+      console.error("[process-mix] Blockhash error:", blockhashData.error);
+      throw new Error(`Failed to get blockhash: ${JSON.stringify(blockhashData.error)}`);
+    }
+    
     const recentBlockhash = blockhashData.result?.value?.blockhash;
+    const lastValidBlockHeight = blockhashData.result?.value?.lastValidBlockHeight;
 
     if (!recentBlockhash) {
-      throw new Error("Failed to get recent blockhash");
+      throw new Error("Failed to get recent blockhash - no blockhash in response");
     }
+
+    console.log(`[process-mix] Blockhash: ${recentBlockhash}, valid until block: ${lastValidBlockHeight}`);
 
     // Build and sign transaction
     const signedTxBase64 = await buildAndSignTransfer(
@@ -265,7 +332,9 @@ serve(async (req) => {
       recentBlockhash
     );
 
-    // Send transaction
+    console.log(`[process-mix] Sending transaction...`);
+
+    // Send transaction with skipPreflight to avoid simulation issues
     const sendResponse = await fetch(RPC_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -273,13 +342,22 @@ serve(async (req) => {
         jsonrpc: "2.0",
         id: 1,
         method: "sendTransaction",
-        params: [signedTxBase64, { encoding: "base64", skipPreflight: false }],
+        params: [
+          signedTxBase64, 
+          { 
+            encoding: "base64", 
+            skipPreflight: true,
+            preflightCommitment: "confirmed",
+            maxRetries: 3
+          }
+        ],
       }),
     });
     const sendData = await sendResponse.json();
 
     if (sendData.error) {
       console.error("[process-mix] Transaction error:", sendData.error);
+      await supabase.from("mix_sessions").update({ status: "failed" }).eq("id", sessionId);
       throw new Error(`Transaction failed: ${JSON.stringify(sendData.error)}`);
     }
 
