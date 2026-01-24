@@ -5,8 +5,16 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Use devnet for testing - switch to mainnet for production
-const RPC_URL = "https://api.devnet.solana.com";
+// Use Helius RPC for reliable mainnet access
+function getRpcUrl(): string {
+  const heliusKey = Deno.env.get("HELIUS_API_KEY");
+  if (heliusKey) {
+    return `https://mainnet.helius-rpc.com/?api-key=${heliusKey}`;
+  }
+  // Fallback to public RPC
+  return "https://api.mainnet-beta.solana.com";
+}
+
 const LAMPORTS_PER_SOL = 1_000_000_000;
 
 // Base58 helpers
@@ -270,7 +278,7 @@ Deno.serve(async (req: Request) => {
     console.log(`[process-mix] Output wallet: ${outputAddress}`);
 
     // Get balance
-    const balanceResponse = await fetch(RPC_URL, {
+    const balanceResponse = await fetch(getRpcUrl(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -298,7 +306,7 @@ Deno.serve(async (req: Request) => {
 
     // Get recent blockhash with finalized commitment for more stability
     console.log(`[process-mix] Getting recent blockhash...`);
-    const blockhashResponse = await fetch(RPC_URL, {
+    const blockhashResponse = await fetch(getRpcUrl(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -335,7 +343,7 @@ Deno.serve(async (req: Request) => {
     console.log(`[process-mix] Sending transaction...`);
 
     // Send transaction with skipPreflight to avoid simulation issues
-    const sendResponse = await fetch(RPC_URL, {
+    const sendResponse = await fetch(getRpcUrl(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

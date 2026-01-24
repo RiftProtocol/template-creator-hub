@@ -1,15 +1,22 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const RPC_URL = "https://api.mainnet-beta.solana.com";
+// Use Helius RPC for reliable mainnet access
+function getRpcUrl(): string {
+  const heliusKey = Deno.env.get("HELIUS_API_KEY");
+  if (heliusKey) {
+    return `https://mainnet.helius-rpc.com/?api-key=${heliusKey}`;
+  }
+  return "https://api.mainnet-beta.solana.com";
+}
+
 const LAMPORTS_PER_SOL = 1_000_000_000;
 
-serve(async (req) => {
+Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -66,11 +73,12 @@ serve(async (req) => {
 
     const depositAddress = session.deposit_address;
     const expectedAmount = parseFloat(session.amount_sol);
+    const rpcUrl = getRpcUrl();
 
     console.log(`[detect-mix-transaction] Checking ${depositAddress} for ${expectedAmount} SOL`);
 
     // Get recent signatures
-    const signaturesResponse = await fetch(RPC_URL, {
+    const signaturesResponse = await fetch(rpcUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -92,7 +100,7 @@ serve(async (req) => {
 
     // Check each transaction
     for (const sig of signaturesData.result) {
-      const txResponse = await fetch(RPC_URL, {
+      const txResponse = await fetch(rpcUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
