@@ -49,8 +49,57 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Check if expired
+    // Check if expired.
+    // IMPORTANT: On Solana, indexing/visibility can lag. If the user deposited near the deadline,
+    // we should still try to detect funds (via balance) before declaring the session expired.
     if (new Date(session.expires_at) < new Date()) {
+      if (session.status === "awaiting_deposit" && session.deposit_address) {
+        const rpcUrl = getRpcUrl();
+        const balanceRes = await fetch(rpcUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "getBalance",
+            params: [session.deposit_address, { commitment: "confirmed" }],
+          }),
+        });
+
+        const balanceJson = await balanceRes.json();
+        const lamports = balanceJson?.result?.value;
+        const expectedAmount = parseFloat(session.amount_sol);
+
+        if (typeof lamports === "number") {
+          const sol = lamports / LAMPORTS_PER_SOL;
+          if (sol >= expectedAmount - 0.001) {
+            console.log(
+              `[detect-mix-transaction] Expired session but balance indicates deposit: ${sol} SOL (expected ${expectedAmount})`
+            );
+
+            await supabase
+              .from("mix_sessions")
+              .update({
+                status: "deposit_detected",
+                deposit_detected_at: new Date().toISOString(),
+              })
+              .eq("id", sessionId);
+
+            return new Response(
+              JSON.stringify({
+                success: true,
+                found: true,
+                status: "deposit_detected",
+                txSignature: null,
+                amountReceived: sol,
+                detectionMethod: "balance_after_expiry",
+              }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        }
+      }
+
       await supabase.from("mix_sessions").update({ status: "expired" }).eq("id", sessionId);
       return new Response(
         JSON.stringify({ success: false, error: "Session expired", status: "expired" }),
