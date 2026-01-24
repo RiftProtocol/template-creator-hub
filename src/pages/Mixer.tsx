@@ -211,7 +211,7 @@ export default function Mixer() {
                     <span className="text-sm">Waiting for transaction...</span>
                   </div>
                 )}
-                <Button variant="outline" onClick={resetMixer} className="border-white/20 text-white/60">Cancel</Button>
+                <Button variant="outline" onClick={resetMixer} className="border-white/20 bg-transparent text-white/60 hover:bg-white/10 hover:text-white">Cancel</Button>
               </div>
             )}
 
